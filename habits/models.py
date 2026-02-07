@@ -14,6 +14,8 @@ class Habit(models.Model):
     owner = models.ForeignKey(
         CustomUser,
         on_delete=models.CASCADE,
+        null=True,
+        blank=True,
         related_name="habits",
         verbose_name='Создатель привычки'
     )

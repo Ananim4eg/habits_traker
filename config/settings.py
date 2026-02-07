@@ -108,9 +108,9 @@ SIMPLE_JWT = {
 
 
 
-LANGUAGE_CODE = "en-us"
+LANGUAGE_CODE = 'ru-RU'
 
-TIME_ZONE = "UTC"
+TIME_ZONE = 'Europe/Moscow'
 
 USE_I18N = True
 
@@ -131,9 +131,11 @@ CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
 CELERY_BEAT_SCHEDULE = {
     'send_message_telegram': {
         'task': 'habits.tasks.send_message_telegram',
-        'schedule': timedelta(seconds=10),
+        'schedule': timedelta(seconds=50),
     },
 }
+
+CELERY_TIMEZONE = 'Europe/Moscow'
 
 TELEGRAM_API_BOT=os.getenv('TELEGRAM_API_BOT')
 TELEGRAM_API_URL=os.getenv('TELEGRAM_API_URL')

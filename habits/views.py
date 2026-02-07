@@ -35,8 +35,5 @@ class HabitViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
 
-    def get_queryset(self):
-        user = self.request.user
-        if self.action == 'list':
-            return Habit.objects.filter(owner=user) | Habit.objects.filter(is_public=True)
-        return super().get_queryset()
+    def perform_update(self, serializer):
+        serializer.save(owner=self.request.user)
