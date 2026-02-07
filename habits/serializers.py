@@ -8,8 +8,20 @@ class HabitSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Habit
-        fields = ['id', 'owner', 'habit_name', 'place', 'time', 'action', 'is_pleasant', 'periodicity', 'reward',
-                  'is_public', 'time_to_complete', 'created_at']
+        fields = [
+            "id",
+            "owner",
+            "habit_name",
+            "place",
+            "time",
+            "action",
+            "is_pleasant",
+            "periodicity",
+            "reward",
+            "is_public",
+            "time_to_complete",
+            "created_at",
+        ]
 
     def validate(self, attrs):
         instance = Habit(**attrs)

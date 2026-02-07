@@ -13,11 +13,12 @@ from habits.serializers import HabitSerializer
 
 class HabitViewSet(viewsets.ModelViewSet):
     """Представление ViewSet для работы с привычками"""
+
     serializer_class = HabitSerializer
     queryset = Habit.objects.all()
     pagination_class = CustomPagination
     filter_backends = [OrderingFilter, DjangoFilterBackend]
-    filterset_fields = ['is_public', 'is_pleasant']
+    filterset_fields = ["is_public", "is_pleasant"]
 
     @swagger_auto_schema(
         operation_description="Создание",
@@ -26,61 +27,56 @@ class HabitViewSet(viewsets.ModelViewSet):
             type=openapi.TYPE_OBJECT,
             properties={
                 "habit_name": openapi.Schema(
-                    type=openapi.TYPE_STRING,
-                    description='Название привычки'
+                    type=openapi.TYPE_STRING, description="Название привычки"
                 ),
                 "owner": openapi.Schema(
-                    type=openapi.TYPE_INTEGER,
-                    description='Создатель привычки'
+                    type=openapi.TYPE_INTEGER, description="Создатель привычки"
                 ),
                 "place": openapi.Schema(
-                    type=openapi.TYPE_STRING,
-                    description='Место выполнения привычки'
+                    type=openapi.TYPE_STRING, description="Место выполнения привычки"
                 ),
                 "time": openapi.Schema(
                     type=openapi.TYPE_STRING,
-                    description='Время для выполнения привычки. Не может превышать 120 секунд.'
+                    description="Время для выполнения привычки. Не может превышать 120 секунд.",
                 ),
                 "action": openapi.Schema(
-                    type=openapi.TYPE_STRING,
-                    description='Действие'
+                    type=openapi.TYPE_STRING, description="Действие"
                 ),
                 "is_pleasant": openapi.Schema(
                     type=openapi.TYPE_BOOLEAN,
-                    description='Признак полезной привычки. Не может указываться у привычек с выбранным reward и \
-                    если выбрано related_habit'
+                    description="Признак полезной привычки. Не может указываться у привычек с выбранным reward и \
+                    если выбрано related_habit",
                 ),
                 "related_habit": openapi.Schema(
                     type=openapi.TYPE_INTEGER,
-                    description='Связанная привычка. Должна быть привычка с признаком is_pleasant. Не может быть \
-                    указана у привычки с признаком is_pleasant и если выбрано reward'
+                    description="Связанная привычка. Должна быть привычка с признаком is_pleasant. Не может быть \
+                    указана у привычки с признаком is_pleasant и если выбрано reward",
                 ),
                 "periodicity": openapi.Schema(
                     type=openapi.TYPE_INTEGER,
-                    description='Периодичность выполнения. Должна быть в диапазоне от 1 до 7 дней.'
+                    description="Периодичность выполнения. Должна быть в диапазоне от 1 до 7 дней.",
                 ),
                 "reward": openapi.Schema(
                     type=openapi.TYPE_STRING,
-                    description='Вознаграждение. Не может быть указана у привычки с признаком is_pleasant и если \
-                    выбрана related_habit'
+                    description="Вознаграждение. Не может быть указана у привычки с признаком is_pleasant и если \
+                    выбрана related_habit",
                 ),
                 "time_to_complete": openapi.Schema(
                     type=openapi.TYPE_INTEGER,
-                    description='Время на выполнение привычки'
+                    description="Время на выполнение привычки",
                 ),
                 "is_public": openapi.Schema(
-                    type=openapi.TYPE_BOOLEAN,
-                    description='Признак публичной привычки'
-                )
+                    type=openapi.TYPE_BOOLEAN, description="Признак публичной привычки"
+                ),
             },
-            required=['habit_name', "place", "action", "time_to_complete"]
+            required=["habit_name", "place", "action", "time_to_complete"],
         ),
         responses={
-            '201': openapi.Response(
+            "201": openapi.Response(
                 description="Объект создан",
                 schema=HabitSerializer,
                 examples={
-                    'application/json': {
+                    "application/json": {
                         "id": 1,
                         "owner": 3,
                         "habit_name": "Отжимания",
@@ -92,30 +88,30 @@ class HabitViewSet(viewsets.ModelViewSet):
                         "reward": None,
                         "is_public": False,
                         "time_to_complete": 120,
-                        "created_at": "2026-02-07T18:14:38.910300+03:00"
+                        "created_at": "2026-02-07T18:14:38.910300+03:00",
                     }
-                }
+                },
             ),
-            '400': "Ошибки валидации",
-            '401': "Не авторизован"
+            "400": "Ошибки валидации",
+            "401": "Не авторизован",
         },
-        tags=['habit']
+        tags=["habit"],
     )
     def create(self, request, *args, **kwargs):
         return super().create(request, *args, **kwargs)
 
     def get_permissions(self):
-        if self.action == 'list':
+        if self.action == "list":
             self.permission_classes = [IsAuthenticated]
-        elif self.action == 'update':
+        elif self.action == "update":
             self.permission_classes = [IsAuthenticated, IsOwner]
-        elif self.action == 'partial_update':
+        elif self.action == "partial_update":
             self.permission_classes = [IsAuthenticated, IsOwner]
-        elif self.action == 'retrieve':
+        elif self.action == "retrieve":
             self.permission_classes = [IsAuthenticated, IsOwner]
-        elif self.action == 'create':
+        elif self.action == "create":
             self.permission_classes = [IsAuthenticated]
-        elif self.action == 'destroy':
+        elif self.action == "destroy":
             self.permission_classes = [IsAuthenticated, IsOwner]
         return [permission() for permission in self.permission_classes]
 

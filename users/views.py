@@ -16,21 +16,22 @@ class RegisterView(APIView):
         request_body=openapi.Schema(
             type=openapi.TYPE_OBJECT,
             properties={
-                "email": openapi.Schema(type=openapi.TYPE_STRING, description='Почта'),
-                "password": openapi.Schema(type=openapi.TYPE_STRING, description='Пароль'),
-                "confirm_password": openapi.Schema(type=openapi.TYPE_STRING, description='Подтверждение пароля')
+                "email": openapi.Schema(type=openapi.TYPE_STRING, description="Почта"),
+                "password": openapi.Schema(
+                    type=openapi.TYPE_STRING, description="Пароль"
+                ),
+                "confirm_password": openapi.Schema(
+                    type=openapi.TYPE_STRING, description="Подтверждение пароля"
+                ),
             },
-            required=['email', "password", "confirm_password"]
+            required=["email", "password", "confirm_password"],
         ),
         responses={
-            201: openapi.Response(
-                description="1"
-            ),
-            400: "Ошибка валидации данных"
+            201: openapi.Response(description="1"),
+            400: "Ошибка валидации данных",
         },
-        tags=['register']
+        tags=["register"],
     )
-
     def post(self, request):
         serializer = UserRegistrationSerializer(data=request.data)
         if serializer.is_valid():

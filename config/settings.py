@@ -5,9 +5,9 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-SECRET_KEY = os.getenv('SECRET_KEY')
+SECRET_KEY = os.getenv("SECRET_KEY")
 
-DEBUG = True if os.getenv('DEBUG') == 'True' else False
+DEBUG = True if os.getenv("DEBUG") == "True" else False
 
 ALLOWED_HOSTS = []
 
@@ -20,15 +20,12 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-
-    'django_filters',
-    'django_celery_beat',
+    "django_filters",
+    "django_celery_beat",
     "rest_framework_simplejwt",
-    'drf_yasg',
-
-    'habits',
-    'users',
-
+    "drf_yasg",
+    "habits",
+    "users",
 ]
 
 MIDDLEWARE = [
@@ -77,7 +74,7 @@ DATABASES = {
     }
 }
 
-AUTH_USER_MODEL = 'users.CustomUser'
+AUTH_USER_MODEL = "users.CustomUser"
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -95,28 +92,26 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
     ),
-    'DEFAULT_FILTER_BACKENDS': [
-        'django_filters.rest_framework.DjangoFilterBackend',
+    "DEFAULT_FILTER_BACKENDS": [
+        "django_filters.rest_framework.DjangoFilterBackend",
     ],
 }
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=30),
 }
 
 
+LANGUAGE_CODE = "ru-RU"
 
-LANGUAGE_CODE = 'ru-RU'
-
-TIME_ZONE = 'Europe/Moscow'
+TIME_ZONE = "Europe/Moscow"
 
 USE_I18N = True
 
 USE_TZ = True
-
 
 
 STATIC_URL = "static/"
@@ -130,13 +125,13 @@ CELERY_RESULT_BACKEND = os.getenv("CELERY_RESULT_BACKEND")
 CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
 
 CELERY_BEAT_SCHEDULE = {
-    'send_message_telegram': {
-        'task': 'habits.tasks.send_message_telegram',
-        'schedule': timedelta(seconds=50),
+    "send_message_telegram": {
+        "task": "habits.tasks.send_message_telegram",
+        "schedule": timedelta(seconds=50),
     },
 }
 
-CELERY_TIMEZONE = 'Europe/Moscow'
+CELERY_TIMEZONE = "Europe/Moscow"
 
-TELEGRAM_API_BOT=os.getenv('TELEGRAM_API_BOT')
-TELEGRAM_API_URL=os.getenv('TELEGRAM_API_URL')
+TELEGRAM_API_BOT = os.getenv("TELEGRAM_API_BOT")
+TELEGRAM_API_URL = os.getenv("TELEGRAM_API_URL")
