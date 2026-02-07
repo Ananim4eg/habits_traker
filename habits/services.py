@@ -13,5 +13,4 @@ def send_reminder(habit_name, telegram_id):
         'chat_id': telegram_id
     }
 
-    requests.get(url, params=params)
-    send_reminder('123', 483927133)
+    response = requests.get(url, params=params)

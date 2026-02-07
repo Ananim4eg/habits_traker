@@ -22,10 +22,11 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
 
     'django_filters',
+    'django_celery_beat',
+    "rest_framework_simplejwt",
 
     'habits',
     'users',
-    "rest_framework_simplejwt",
 
 ]
 
@@ -124,6 +125,15 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 CELERY_BROKER_URL = os.getenv("CELERY_BROKER_URL")
 CELERY_RESULT_BACKEND = os.getenv("CELERY_RESULT_BACKEND")
+
+CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
+
+CELERY_BEAT_SCHEDULE = {
+    'send_message_telegram': {
+        'task': 'habits.tasks.send_message_telegram',
+        'schedule': timedelta(seconds=10),
+    },
+}
 
 TELEGRAM_API_BOT=os.getenv('TELEGRAM_API_BOT')
 TELEGRAM_API_URL=os.getenv('TELEGRAM_API_URL')
