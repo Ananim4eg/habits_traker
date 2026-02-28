@@ -63,7 +63,7 @@ jobs:
         run: poetry install --no-interaction
 
       - name: Check and start Postgresql
-        run: ls -a /var/run/postgresql/
+        run: ls -ld /var/run/postgresql
 
       - name: Wait for PostgreSQL to be ready
         run: |
