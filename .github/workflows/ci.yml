@@ -10,7 +10,7 @@ env:
   POSTGRES_PORT: ${{ secrets.POSTGRES_PORT }}
   POSTGRES_HOST: ${{ secrets.POSTGRES_HOST }}
 
-#jobs:
+jobs:
 #  lint:
 #    runs-on: ubuntu-latest
 #    steps:
