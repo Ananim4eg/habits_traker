@@ -63,7 +63,8 @@ jobs:
         run: poetry install --no-interaction
 
       - name: check
-        run: sudo ss -lx | grep -i postgres
+        run: |
+          sudo ss -lx | grep -i postgres
           locate .s.PGSQL.5432
 
       - name: Run database migrations (test)
