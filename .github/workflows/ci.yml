@@ -62,11 +62,10 @@ jobs:
       - name: Install dependencies
         run: poetry install --no-interaction
 
-      - name: check pg status
-        run: sudo systemctl start postgresql
-
       - name: Run database migrations (test)
-        run: poetry run python manage.py migrate --no-input
+        run: |
+          sudo systemctl start postgresql
+          poetry run python manage.py migrate --no-input
 
       - name: Collect static files (test)
         run: poetry run python manage.py collectstatic --no-input
