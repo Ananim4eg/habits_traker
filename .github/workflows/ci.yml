@@ -100,10 +100,9 @@ jobs:
           password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
 
       - name: Build and push images using Docker Compose
-        uses: docker/compose-action@v2.5.0
+        uses: hoverkraft-tech/compose-action@4894d2492015c1774ee5a13a95b1072093087ec3
         with:
-          compose-file: 'docker-compose.yml'
-          context: '.'
+          compose-file: ./docker-compose.yml
           push: true
           tags: latest
 #  build:
