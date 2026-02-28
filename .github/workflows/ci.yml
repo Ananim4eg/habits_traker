@@ -63,11 +63,13 @@ jobs:
         run: poetry install --no-interaction
 
       - name: check
-        run: sudo ss -tuln | grep 5432
+        run: sudo ss -lx | grep -i postgres
+          locate .s.PGSQL.5432
 
       - name: Run database migrations (test)
         run: |
           sudo systemctl start postgresql
+          sudo systemctl status postgresql
           poetry run python manage.py migrate --no-input
 
       - name: Collect static files (test)
