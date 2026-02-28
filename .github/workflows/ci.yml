@@ -123,9 +123,13 @@ jobs:
         run: |
           services=$(docker-compose config --services)
           for service in $services; do
-            image="${{ secrets.DOCKER_HUB_USERNAME }}/$service"
-            docker tag $service $image
-            docker push $image
+            if docker image inspect $service > /dev/null 2>&1; then
+              image="${{ secrets.DOCKER_HUB_USERNAME }}/$service"
+              docker tag $service $image
+              docker push $image
+            else
+              echo "No local image for $service, skipping..."
+            fi
           done
 
 #  build:
