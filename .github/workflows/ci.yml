@@ -124,9 +124,9 @@ jobs:
           services=$(docker-compose config --services)
           for service in $services; do
             if docker image inspect ${{ secrets.POSTGRES_DB }}_$service > /dev/null 2>&1; then
-              image="${{ secrets.DOCKER_HUB_USERNAME }}/$service"
+              image="${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.POSTGRES_DB }}_$service"
               docker tag $service $image
-              docker push ${{ secrets.POSTGRES_DB }}_$image
+              docker push $image
             else
               echo "No local image for $service, skipping..."
             fi
