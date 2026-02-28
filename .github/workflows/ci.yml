@@ -109,7 +109,6 @@ jobs:
             cd $PROJECT_DIR
             
             echo "Current directory: $(pwd)"
-            cd /home/vlad/
             
             docker system prune -f
             
