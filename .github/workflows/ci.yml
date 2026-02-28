@@ -126,7 +126,7 @@ jobs:
             if docker image inspect ${{ secrets.POSTGRES_DB }}_$service > /dev/null 2>&1; then
               image="${{ secrets.DOCKER_HUB_USERNAME }}/$service"
               docker tag $service $image
-              docker push $image
+              docker push ${{ secrets.POSTGRES_DB }}_$image
             else
               echo "No local image for $service, skipping..."
             fi
