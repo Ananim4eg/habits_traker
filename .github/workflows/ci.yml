@@ -62,6 +62,9 @@ jobs:
       - name: Install dependencies
         run: poetry install --no-interaction
 
+      - name: check
+        run: sudo ss -tuln | grep 5432
+
       - name: Run database migrations (test)
         run: |
           sudo systemctl start postgresql
