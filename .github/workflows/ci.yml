@@ -87,52 +87,82 @@ jobs:
 #
 #      - name: Run Django tests
 #        run: poetry run python manage.py test
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
 
-      - name: Create .env file
-        run: |
-          echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" > .env
-          echo "POSTGRES_USER=${{ secrets.POSTGRES_USER }}" >> .env
-          echo "POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}" >> .env
-          echo "POSTGRES_DB=${{ secrets.POSTGRES_DB }}" >> .env
-          echo "POSTGRES_PORT=${{ secrets.POSTGRES_PORT }}" >> .env
-          echo "POSTGRES_HOST=${{ secrets.POSTGRES_HOST }}" >> .env
+    build:
+      runs-on: ubuntu-latest
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+      steps:
+        - uses: actions/checkout@v3
 
-      - name: Install Docker Compose
-        run: |
-          sudo apt-get update
-          sudo apt-get install docker-compose -y
+        - name: Login to DockerHub
+          uses: docker/login-action@v2
+          with:
+            username: ${{ secrets.DOCKER_HUB_USERNAME }}
+            password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
 
-      - name: Build Docker images
-        run: docker-compose build --no-cache
-
-      - name: View Docker images
-        run: docker compose images
-
-      - name: View Docker config
-        run: docker-compose config --services
-
-      - name: Login to Docker Hub
-        uses: docker/login-action@v2
-        with:
-          username: ${{ secrets.DOCKER_HUB_USERNAME }}
-          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
-
-      - name: Push Docker Compose images to Docker Hub
-        run: |
-          services=$(docker-compose config --services)
-          
-          for service in $services; do
-            image=$(docker-compose config --services | grep $service | awk '{print $2}')
-            docker push $image
-          done
+        - name: Build and push images
+          run: |
+            # Сборка всех сервисов из docker-compose
+            docker compose build
+            
+            # Тегирование и отправка для каждого сервиса
+            docker compose images -q | while read IMAGE_ID; do
+              SERVICE_NAME=$(docker inspect $IMAGE_ID | jq -r '.[0].Config.Labels["com.docker.compose.service"]')
+            
+              # Тегирование
+              docker tag $IMAGE_ID ${{ secrets.DOCKER_HUB_USERNAME }}/$SERVICE_NAME:latest
+              docker tag $IMAGE_ID ${{ secrets.DOCKER_HUB_USERNAME }}/$SERVICE_NAME:${{ github.sha }}
+            
+              # Отправка
+              docker push ${{ secrets.DOCKER_HUB_USERNAME }}/$SERVICE_NAME:latest
+              docker push ${{ secrets.DOCKER_HUB_USERNAME }}/$SERVICE_NAME:${{ github.sha }}
+            done
+#  build:
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: Checkout code
+#        uses: actions/checkout@v3
+#
+#      - name: Create .env file
+#        run: |
+#          echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" > .env
+#          echo "POSTGRES_USER=${{ secrets.POSTGRES_USER }}" >> .env
+#          echo "POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}" >> .env
+#          echo "POSTGRES_DB=${{ secrets.POSTGRES_DB }}" >> .env
+#          echo "POSTGRES_PORT=${{ secrets.POSTGRES_PORT }}" >> .env
+#          echo "POSTGRES_HOST=${{ secrets.POSTGRES_HOST }}" >> .env
+#
+#      - name: Set up Docker Buildx
+#        uses: docker/setup-buildx-action@v2
+#
+#      - name: Install Docker Compose
+#        run: |
+#          sudo apt-get update
+#          sudo apt-get install docker-compose -y
+#
+#      - name: Build Docker images
+#        run: docker-compose build --no-cache
+#
+#      - name: View Docker images
+#        run: docker compose images
+#
+#      - name: View Docker config
+#        run: docker-compose config --services
+#
+#      - name: Login to Docker Hub
+#        uses: docker/login-action@v2
+#        with:
+#          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+#          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+#
+#      - name: Push Docker Compose images to Docker Hub
+#        run: |
+#          services=$(docker-compose config --services)
+#
+#          for service in $services; do
+#            image=$(docker-compose config --services | grep $service | awk '{print $2}')
+#            docker push $image
+#          done
 
 #      - name: Push images to Docker Hub
 #        run: |
