@@ -131,7 +131,7 @@ jobs:
             fi
             
             docker-compose down
-            docker-compose --env-file /home/vlad/.env up -d --build
+            docker-compose --env-file /home/vlad/.env.habits up -d --build
 #  build:
 #    runs-on: ubuntu-latest
 #    steps:
