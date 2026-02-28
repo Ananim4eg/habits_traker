@@ -123,7 +123,7 @@ jobs:
         run: |
           services=$(docker-compose config --services)
           for service in $services; do
-            image="your-dockerhub-username/$service:latest"
+            image="${{ secrets.DOCKER_HUB_USERNAME }}/$service"
             docker tag $service $image
             docker push $image
           done
