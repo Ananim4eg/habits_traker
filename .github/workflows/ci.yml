@@ -105,6 +105,16 @@ jobs:
 
           script: |
             PROJECT_DIR="${{ secrets.DEPLOY_DIR }}habit_traker"
+            
+            if [ -d "$PROJECT_DIR" ]; then
+            echo "✅ Directory exists"
+            echo "📂 Contents:"
+            ls -la $PROJECT_DIR
+            else
+            echo "❌ Directory does not exist"
+            echo "Creating directory..."
+            mkdir -p $PROJECT_DIR
+            fi
                         
             cd $PROJECT_DIR
             
@@ -117,7 +127,7 @@ jobs:
               git clone https://github.com/Ananim4eg/habits_traker.git .
             else
               echo "📥 Pulling latest changes..."
-              git pull origin/feature/home_work_project5
+              git pull origin feature/home_work_project5
             fi
             
             docker-compose down
