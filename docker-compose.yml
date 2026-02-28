@@ -1,7 +1,7 @@
 services:
   web:
     build: .
-    container_name: ${{ secrets.DOCKER_HUB_USERNAME }}/web:${{ github.sha }}
+    container_name: ${ secrets.DOCKER_HUB_USERNAME }/web:${ github.sha }
     command: sh -c "python manage.py migrate --noinput && python manage.py runserver 0.0.0.0:8000"
     volumes:
       - .:/code
@@ -17,7 +17,7 @@ services:
 
   db:
     image: postgres:17.6
-    container_name: ${{ secrets.DOCKER_HUB_USERNAME }}/db:${{ github.sha }}
+    container_name: ${ secrets.DOCKER_HUB_USERNAME }/db:${ github.sha }
     volumes:
       - postgres_data:/var/lib/postgresql/data
     env_file:
@@ -30,7 +30,7 @@ services:
 
   redis:
     image: redis:7-alpine
-    container_name: ${{ secrets.DOCKER_HUB_USERNAME }}/redis:${{ github.sha }}
+    container_name: ${ secrets.DOCKER_HUB_USERNAME }/redis:${ github.sha }
     ports:
       - "6379:6379"
     volumes:
@@ -39,7 +39,7 @@ services:
 
   celery:
     build: .
-    container_name: ${{ secrets.DOCKER_HUB_USERNAME }}/celery:${{ github.sha }}
+    container_name: ${ secrets.DOCKER_HUB_USERNAME }/celery:${ github.sha }
     command: celery -A config worker --pool=solo -l info
     depends_on:
       - redis
@@ -49,7 +49,7 @@ services:
 
   celery-beat:
     build: .
-    container_name: ${{ secrets.DOCKER_HUB_USERNAME }}/celery-beat:${{ github.sha }}
+    container_name: ${ secrets.DOCKER_HUB_USERNAME }/celery-beat:${ github.sha }
     command: celery -A config beat -l info
     depends_on:
       - redis
