@@ -63,7 +63,7 @@ jobs:
         run: poetry install --no-interaction
 
       - name: check pg status
-        run: sudo systemctl status postgresql
+        run: sudo systemctl start postgresql
 
       - name: Run database migrations (test)
         run: poetry run python manage.py migrate --no-input
