@@ -62,6 +62,9 @@ jobs:
       - name: Install dependencies
         run: poetry install --no-interaction
 
+      - name: check pg status
+        run: sudo systemctl status postgresql
+
       - name: Run database migrations (test)
         run: poetry run python manage.py migrate --no-input
 
