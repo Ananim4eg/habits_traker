@@ -105,10 +105,7 @@ jobs:
 
           script: |
             PROJECT_DIR="${{ secrets.DEPLOY_DIR }}habit_traker"
-            
-            mkdir -p $PROJECT_DIR
-            chmod 755 $PROJECT_DIR
-            
+                        
             cd $PROJECT_DIR
             
             echo "Current directory: $(pwd)"
