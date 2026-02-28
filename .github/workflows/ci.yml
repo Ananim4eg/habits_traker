@@ -62,12 +62,23 @@ jobs:
       - name: Install dependencies
         run: poetry install --no-interaction
 
-      - name: Run database migrations (test)
+      - name: Check and start Postgresql
         run: |
-          sudo systemctl daemon-reload
-          sudo systemctl start postgresql.service
-          sudo systemctl enable postgresql.service
-          poetry run python manage.py migrate --no-input
+          sudo systemctl start postgresql
+          sudo systemctl status postgresql
+
+      - name: Wait for PostgreSQL to be ready
+        run: |
+          export PYTHONPATH="${PYTHONPATH}:/home/runner/work/habits_traker/habits_traker"
+          export DJANGO_SETTINGS_MODULE=config.settings
+          until poetry run python -c "from django.db import connection; connection.ensure_connection()"; do
+            echo "Waiting for PostgreSQL..."
+            sleep 2
+          done
+          echo "PostgreSQL is ready!"
+
+      - name: Run database migrations (test)
+        run: poetry run python manage.py migrate --no-input
 
       - name: Collect static files (test)
         run: poetry run python manage.py collectstatic --no-input
