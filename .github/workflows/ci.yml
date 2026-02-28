@@ -62,15 +62,12 @@ jobs:
       - name: Install dependencies
         run: poetry install --no-interaction
 
-      - name: check
-        run: |
-          sudo ss -lx | grep -i postgres
-          sudo locate .s.PGSQL.5432
-
       - name: Run database migrations (test)
         run: |
           sudo systemctl start postgresql
           sudo systemctl status postgresql
+          sudo ss -lx | grep -i postgresql
+          sudo locate .s.PGSQL.5432
           poetry run python manage.py migrate --no-input
 
       - name: Collect static files (test)
