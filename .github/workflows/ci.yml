@@ -108,10 +108,16 @@ jobs:
             
             docker system prune -f
             
-            git pull origin feature/home_work_project5
+            if [ ! -d ".git" ]; then
+              echo "📥 Cloning repository..."
+              git clone https://github.com/Ananim4eg/habits_traker.git .
+            else
+              echo "📥 Pulling latest changes..."
+              git pull origin feature/home_work_project5
+            fi
             
-            docker compose down
-            docker compose --env-file /home/vlad/.env up -d --build
+            docker-compose down
+            docker-compose --env-file /home/vlad/.env up -d --build
 #  build:
 #    runs-on: ubuntu-latest
 #    steps:
