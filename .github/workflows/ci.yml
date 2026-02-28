@@ -108,13 +108,14 @@ jobs:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
 
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v3
-        with:
-          context: .
-          file: ./docker-compose.yml
-          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/habit_app:latest
-          push: true
+      - name: Push images to Docker Hub
+        run: |
+          services=$(docker-compose config --services)
+          for service in $services; do
+            image="your-dockerhub-username/$service:latest"
+            docker tag $service $image
+            docker push $image
+          done
 
 #  build:
 #    needs: test
