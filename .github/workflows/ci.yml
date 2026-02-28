@@ -64,7 +64,9 @@ jobs:
 
       - name: Check and start Postgresql
         run: |
-          sudo systemctl start postgresql
+          
+          sudo systemctl daemon-reload
+          sudo systemctl restart postgresql
           sudo systemctl status postgresql
 
       - name: Wait for PostgreSQL to be ready
