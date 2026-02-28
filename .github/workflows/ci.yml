@@ -11,84 +11,112 @@ env:
   POSTGRES_HOST: ${{ secrets.POSTGRES_HOST }}
 
 jobs:
-#  lint:
-#    runs-on: ubuntu-latest
-#    steps:
-#    - name: Check out code
-#      uses: actions/checkout@v3
-#
-#    - name: Set up Python
-#      uses: actions/setup-python@v4
-#      with:
-#        python-version: '3.11'
-#
-#    - name: Install dependencies
-#      run: |
-#        python -m pip install --upgrade pip
-#        pip install flake8
-#
-#    - name: Run Flake8
-#      run: flake8 .
-#
-#  test:
-#    needs: lint
-#    runs-on: ubuntu-latest
-#    services:
-#      postgres:
-#        image: postgres:17.6
-#        env:
-#          POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
-#          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
-#          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-#        ports:
-#          - 5432:5432
-#        options: --health-cmd pg_isready --health-interval 10s --health-timeout 30s --health-retries 10
-#
-#    steps:
-#      - name: Checkout code
-#        uses: actions/checkout@v3
-#
-#      - name: Set up Python
-#        uses: actions/setup-python@v4
-#        with:
-#          python-version: '3.11'
-#
-#      - name: Install Poetry
-#        uses: snok/install-poetry@v1
-#        with:
-#          virtualenvs-create: true
-#          virtualenvs-in-project: true
-#
-#      - name: Install dependencies
-#        run: poetry install --no-interaction
-#
-#      - name: Check and start Postgresql
-#        run: |
-#
-#          sudo systemctl daemon-reload
-#          sudo systemctl restart postgresql
-#          sudo systemctl status postgresql
-#
-#      - name: Wait for PostgreSQL to be ready
-#        run: |
-#          export PYTHONPATH="${PYTHONPATH}:/home/runner/work/habit_traker/habit_traker"
-#          export DJANGO_SETTINGS_MODULE=config.settings
-#          until poetry run python -c "from django.db import connection; connection.ensure_connection()"; do
-#            echo "Waiting for PostgreSQL..."
-#            sleep 2
-#          done
-#          echo "PostgreSQL is ready"
-#
-#      - name: Run database migrations (test)
-#        run: poetry run python manage.py migrate --no-input
-#
-#      - name: Collect static files (test)
-#        run: poetry run python manage.py collectstatic --no-input
-#
-#      - name: Run Django tests
-#        run: poetry run python manage.py test
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Check out code
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install flake8
+
+    - name: Run Flake8
+      run: flake8 .
+
+  test:
+    needs: lint
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17.6
+        env:
+          POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
+          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 30s --health-retries 10
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+
+      - name: Install dependencies
+        run: poetry install --no-interaction
+
+      - name: Check and start Postgresql
+        run: |
+
+          sudo systemctl daemon-reload
+          sudo systemctl restart postgresql
+          sudo systemctl status postgresql
+
+      - name: Wait for PostgreSQL to be ready
+        run: |
+          export PYTHONPATH="${PYTHONPATH}:/home/runner/work/habit_traker/habit_traker"
+          export DJANGO_SETTINGS_MODULE=config.settings
+          until poetry run python -c "from django.db import connection; connection.ensure_connection()"; do
+            echo "Waiting for PostgreSQL..."
+            sleep 2
+          done
+          echo "PostgreSQL is ready"
+
+      - name: Run database migrations (test)
+        run: poetry run python manage.py migrate --no-input
+
+      - name: Collect static files (test)
+        run: poetry run python manage.py collectstatic --no-input
+
+      - name: Run Django tests
+        run: poetry run python manage.py test
+
+  build:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Create .env file
+        run: |
+          echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" > .env
+          echo "POSTGRES_USER=${{ secrets.POSTGRES_USER }}" >> .env
+          echo "POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}" >> .env
+          echo "POSTGRES_DB=${{ secrets.POSTGRES_DB }}" >> .env
+          echo "POSTGRES_PORT=${{ secrets.POSTGRES_PORT }}" >> .env
+          echo "POSTGRES_HOST=${{ secrets.POSTGRES_HOST }}" >> .env
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Install Docker Compose
+        run: |
+          sudo apt-get update
+          sudo apt-get install docker-compose -y
+
+      - name: Build Docker images
+        run: docker-compose build
 
   deploy:
+    needs: build
     runs-on: ubuntu-latest
 
     steps:
@@ -105,13 +133,11 @@ jobs:
 
           script: |
             PROJECT_DIR="${{ secrets.DEPLOY_DIR }}habit_traker"
+            ENV_FILE="${{ secrets.DEPLOY_DIR }}.env.habits"
             
             if [ -d "$PROJECT_DIR" ]; then
-            echo "✅ Directory exists"
-            echo "📂 Contents:"
             ls -la $PROJECT_DIR
             else
-            echo "❌ Directory does not exist"
             echo "Creating directory..."
             mkdir -p $PROJECT_DIR
             fi
@@ -123,107 +149,14 @@ jobs:
             docker system prune -f
             
             if [ ! -d ".git" ]; then
-              echo "📥 Cloning repository..."
               git clone https://github.com/Ananim4eg/habits_traker.git .
             else
-              echo "📥 Pulling latest changes..."
               git reset --hard origin/feature/home_work_project5
             fi
             
+            if [ ! -f ".env" ]; then
+              cp "$ENV_FILE" .env
+            fi
+            
             docker-compose down
-            docker-compose --env-file /home/vlad/.env.habits up -d --build
-#  build:
-#    runs-on: ubuntu-latest
-#    steps:
-#      - name: Checkout code
-#        uses: actions/checkout@v3
-#
-#      - name: Create .env file
-#        run: |
-#          echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" > .env
-#          echo "POSTGRES_USER=${{ secrets.POSTGRES_USER }}" >> .env
-#          echo "POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}" >> .env
-#          echo "POSTGRES_DB=${{ secrets.POSTGRES_DB }}" >> .env
-#          echo "POSTGRES_PORT=${{ secrets.POSTGRES_PORT }}" >> .env
-#          echo "POSTGRES_HOST=${{ secrets.POSTGRES_HOST }}" >> .env
-#
-#      - name: Set up Docker Buildx
-#        uses: docker/setup-buildx-action@v2
-#
-#      - name: Install Docker Compose
-#        run: |
-#          sudo apt-get update
-#          sudo apt-get install docker-compose -y
-#
-#      - name: Build Docker images
-#        run: docker-compose build --no-cache
-#
-#      - name: View Docker images
-#        run: docker compose images
-#
-#      - name: View Docker config
-#        run: docker-compose config --services
-#
-#      - name: Login to Docker Hub
-#        uses: docker/login-action@v2
-#        with:
-#          username: ${{ secrets.DOCKER_HUB_USERNAME }}
-#          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
-#
-#      - name: Push Docker Compose images to Docker Hub
-#        run: |
-#          services=$(docker-compose config --services)
-#
-#          for service in $services; do
-#            image=$(docker-compose config --services | grep $service | awk '{print $2}')
-#            docker push $image
-#          done
-
-#      - name: Push images to Docker Hub
-#        run: |
-#          services=$(docker-compose config --services)
-#          for service in $services; do
-#            if docker image inspect ${{ secrets.POSTGRES_DB }}_$service > /dev/null 2>&1; then
-#              image="${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.POSTGRES_DB }}_$service"
-#              docker tag $service $image
-#              docker push $image
-#            else
-#              echo "No local image for $service, skipping..."
-#            fi
-#          done
-
-#  build:
-#    needs: test
-#    runs-on: ubuntu-latest
-#
-#    steps:
-#      - name: Check out code
-#        uses: actions/checkout@v3
-#
-#      - name: Log in to Docker Hub
-#        run: echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
-#
-#      - name: Build Docker image
-#        run: docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/myapp:${{ github.sha }} .
-#
-#      - name: Push Docker image to Docker Hub
-#        run: docker push ${{ secrets.DOCKER_HUB_USERNAME }}/myapp:${{ github.sha }}
-#
-#  deploy:
-#    runs-on: ubuntu-latest
-#    needs: build
-#
-#    steps:
-#    - name: Set up SSH
-#      uses: webfactory/ssh-agent@v0.9.1
-#      with:
-#        ssh-private-key: ${{ secrets.SSH_KEY }}
-#
-#    - name: Deploy to Server
-#      run: |
-#        ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
-#          docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/myapp:${{ github.sha }}
-#          docker stop myapp || true
-#          docker rm myapp || true
-#          docker run -d --env-file /home/vlad/.env --name myapp -p 80:8000 ${{ secrets.DOCKER_HUB_USERNAME }}/myapp:${{ github.sha }}
-#        EOF
+            docker-compose up -d --build
