@@ -125,18 +125,27 @@ jobs:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
 
-      - name: Push images to Docker Hub
+      - name: Push Docker Compose images to Docker Hub
         run: |
           services=$(docker-compose config --services)
+          
           for service in $services; do
-            if docker image inspect ${{ secrets.POSTGRES_DB }}_$service > /dev/null 2>&1; then
-              image="${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.POSTGRES_DB }}_$service"
-              docker tag $service $image
-              docker push $image
-            else
-              echo "No local image for $service, skipping..."
-            fi
+            image=$(docker-compose config --services | grep $service | awk '{print $2}')
+            docker push $image
           done
+
+#      - name: Push images to Docker Hub
+#        run: |
+#          services=$(docker-compose config --services)
+#          for service in $services; do
+#            if docker image inspect ${{ secrets.POSTGRES_DB }}_$service > /dev/null 2>&1; then
+#              image="${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.POSTGRES_DB }}_$service"
+#              docker tag $service $image
+#              docker push $image
+#            else
+#              echo "No local image for $service, skipping..."
+#            fi
+#          done
 
 #  build:
 #    needs: test
