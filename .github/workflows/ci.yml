@@ -64,10 +64,9 @@ jobs:
 
       - name: Run database migrations (test)
         run: |
-          sudo systemctl start postgresql
-          sudo systemctl status postgresql
-          sudo ss -lx | grep -i postgresql
-          sudo locate .s.PGSQL.5432
+          sudo systemctl daemon-reload
+          sudo systemctl start postgresql.service
+          sudo systemctl enable postgresql.service
           poetry run python manage.py migrate --no-input
 
       - name: Collect static files (test)
