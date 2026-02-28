@@ -108,11 +108,13 @@ jobs:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
 
-      - name: Build and push images using Docker Compose
-        uses: hoverkraft-tech/compose-action@4894d2492015c1774ee5a13a95b1072093087ec3
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v3
         with:
-          compose-file: ./docker-compose.yml
-          github-token: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+          context: .
+          file: ./docker-compose.yml
+          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/habit_app:latest
+          push: true
 
 #  build:
 #    needs: test
