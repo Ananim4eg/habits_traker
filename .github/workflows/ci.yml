@@ -63,9 +63,7 @@ jobs:
         run: poetry install --no-interaction
 
       - name: Check and start Postgresql
-        run: |
-          sudo systemctl start postgresql
-          sudo systemctl status postgresql
+        run: ls -a /var/run/postgresql/
 
       - name: Wait for PostgreSQL to be ready
         run: |
