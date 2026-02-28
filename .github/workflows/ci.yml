@@ -104,6 +104,13 @@ jobs:
           envs: SECRET_KEY,POSTGRES_USER,POSTGRES_PASSWORD,POSTGRES_DB,POSTGRES_PORT,POSTGRES_HOST
 
           script: |
+            PROJECT_DIR="${{ secrets.DEPLOY_DIR }}habit_traker"
+            
+            mkdir -p $PROJECT_DIR
+            
+            cd $PROJECT_DIR
+            
+            echo "Current directory: $(pwd)"
             cd /home/vlad/
             
             docker system prune -f
