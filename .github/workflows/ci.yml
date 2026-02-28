@@ -77,7 +77,7 @@ jobs:
             echo "Waiting for PostgreSQL..."
             sleep 2
           done
-          echo "PostgreSQL is ready!"
+          echo "PostgreSQL is ready"
 
       - name: Run database migrations (test)
         run: poetry run python manage.py migrate --no-input
