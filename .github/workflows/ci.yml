@@ -64,8 +64,8 @@ jobs:
 
       - name: check
         run: |
-          sudo ss -lx | grep -i postgres
-          locate .s.PGSQL.5432
+          sudo ss -lx | grep -i 'PGSQL'
+          sudo locate .s.PGSQL.*
 
       - name: Run database migrations (test)
         run: |
