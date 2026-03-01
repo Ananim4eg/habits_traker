@@ -151,6 +151,7 @@ jobs:
             if [ ! -d ".git" ]; then
               git clone https://github.com/Ananim4eg/habits_traker.git .
             else
+              git fetch origin
               git reset --hard origin/feature/home_work_project5
             fi
             
